@@ -57,11 +57,20 @@ matrix:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install scons p7zip;
+      curl -LO https://downloads.tuxfamily.org/godotengine/3.2.3/Godot_v3.2.3-stable_osx.64.zip;
+      unzip Godot_v3.2.3-stable_osx.64.zip;
     fi
 
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       curl -LO https://downloads.sourceforge.net/project/scons/scons-local/3.1.2/scons-local-3.1.2.zip;
       unzip scons-local-3.1.2.zip;
+      curl -LO https://downloads.tuxfamily.org/godotengine/3.2.3/Godot_v3.2.3-stable_win64.exe.zip;
+      unzip Godot_v3.2.3-stable_win64.exe.zip;
+    fi
+
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      curl -LO https://downloads.tuxfamily.org/godotengine/3.2.3/Godot_v3.2.3-stable_linux_server.64.zip;
+      unzip Godot_v3.2.3-stable_linux_server.64.zip;
     fi
 
 script:
@@ -71,6 +80,14 @@ script:
       export SCONS="scons";
     fi
 
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      export GODOT="./Godot_v3.2.3-stable_win64.exe";
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      export GODOT="./Godot.app/Contents/MacOS/Godot";
+    else
+      export GODOT="./Godot_v3.2.3-stable_linux_server.64";
+    fi 
+
   - $SCONS target="$TARGET" bits=64 generate_bindings=yes $SCONS_FLAGS;
 
   - if [[ "$STATIC_CHECKS" == "yes" ]]; then
@@ -79,4 +96,5 @@ script:
 
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
       $SCONS target="$TARGET" platform="$TRAVIS_OS_NAME" bits=64 $SCONS_FLAGS -C test;
+      $GODOT --path test -s script.gd;
     fi
