@@ -35,12 +35,16 @@ matrix:
     - name: macOS Debug
       os: osx
       compiler: clang
-      env: TARGET=debug
+      env:
+        - TARGET=debug
+        - HOMEBREW_NO_AUTO_UPDATE=1
 
     - name: macOS Release
       os: osx
       compiler: clang
-      env: TARGET=release
+      env:
+        - TARGET=release
+        - HOMEBREW_NO_AUTO_UPDATE=1
 
     - name: Windows MSVC Debug
       os: windows
@@ -52,7 +56,6 @@ matrix:
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update;
       brew install scons p7zip;
     fi
 
@@ -72,4 +75,8 @@ script:
 
   - if [[ "$STATIC_CHECKS" == "yes" ]]; then
       sh ./misc/travis/clang-format.sh;
+    fi
+
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
+      $SCONS target="$TARGET" platform="$TRAVIS_OS_NAME" bits=64 $SCONS_FLAGS -C test;
     fi
